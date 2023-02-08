@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">FirebaseAuthSample</string>
+
+    <string name="login_user_banned">You were banned by the moderators. If you think this is a mistake, reach out to them.</string>
+    <string name="login_user_error">There was an error during the login. Please try again later.</string>
+    <string name="login_google_bt">Sign in With Google</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_amity_logo">Amity\'s logo</string>
 </resources>

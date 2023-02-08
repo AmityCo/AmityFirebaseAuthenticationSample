@@ -1,3 +1,5 @@
+import java.util.Properties
+
 @Suppress("DSL_SCOPE_VIOLATION") // Remove when fixed https://youtrack.jetbrains.com/issue/KTIJ-19369
 plugins {
     alias(libs.plugins.android.application)
@@ -28,6 +30,14 @@ android {
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
+
+        val secretProperties = readProperties(file("./secrets.properties"))
+        buildConfigField(
+            "String",
+            "GOOGLE_SERVER_CLIENT_ID",
+            secretProperties["GOOGLE_SERVER_CLIENT_ID"] as String
+        )
+        buildConfigField("String", "AMITY_API_KEY", secretProperties["AMITY_API_KEY"] as String)
     }
 
     buildTypes {
@@ -41,18 +51,23 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+
+        freeCompilerArgs += listOf(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+        )
     }
 
     buildFeatures {
         compose = true
         aidl = false
-        buildConfig = false
+        buildConfig = true
         renderScript = false
         shaders = false
     }
@@ -70,6 +85,12 @@ android {
     }
 }
 
+fun readProperties(propertiesFile: File) = Properties().apply {
+    propertiesFile.inputStream().use { fis ->
+        load(fis)
+    }
+}
+
 dependencies {
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
@@ -78,6 +99,7 @@ dependencies {
 
     // Hilt Dependency Injection
     implementation(libs.hilt.android)
+    implementation("androidx.core:core-ktx:+")
     kapt(libs.hilt.compiler)
     // Hilt and instrumented tests.
     androidTestImplementation(libs.hilt.android.testing)
@@ -126,3 +148,4 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
 }
 apply(plugin = "com.google.gms.google-services")
+apply(plugin = "org.jetbrains.kotlin.android")
